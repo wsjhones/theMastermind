@@ -21,22 +21,36 @@ color_map = {
   "W" : "⚪",
 }
 
+# White, Red
+feedback_map = {
+  "W" : "⚪",
+  "R" : "🔴",
+}
+
+secret = []
+feedback = []
+
 def display(lst):
+  print()
   for i in lst:
     print(i, end=" ")
-  print()
+
+def displayFeedback(lst):
+  print(end="  ")
+  for i in lst:
+    print(i, end=" ")
 
 import random
 
 def generateSecret(color_map, slots=4, repeats=False):
   # Create a random list according to the number of slots from choices as per the repeats flag
+  global secret
   if repeats:
     secret = random.choices(list(color_map.values()), k=slots)
   else:
     secret = random.sample(list(color_map.values()), k=slots)
-  display(secret)
 
-generateSecret(color_map, 4, False)
+  display(secret)
 
 def displayInput(user_input):
     # Remove spaces and convert to uppercase
@@ -55,6 +69,34 @@ def displayInput(user_input):
         lst.append(color_map[c])
 
     display(lst)
+    validateInput(user_input)
+
+def validateInput(user_input):
+  # compare aganist the secret and build feedback - white for color matches only, red for color and place matches
+  feedback = []
+  secret_copy = secret[:]
+  guess_copy = [color_map[c] for c in user_input]
+
+  for i in range(len(user_input)):
+    if guess_copy[i] == secret_copy[i]:
+        feedback.append(feedback_map["R"])
+        secret_copy[i] = None      # Mark as used
+        guess_copy[i] = None
+
+  for color in guess_copy:
+      if color is not None and color in secret_copy:
+          feedback.append(feedback_map["W"])
+          secret_copy[secret_copy.index(color)] = None
+
+  # Randomize the feedback
+  random.shuffle(feedback)
+  displayFeedback(feedback)
+
+generateSecret(color_map, 4, False)
 
 displayInput(input())
+
+displayInput(input())
+
+!git status
 
