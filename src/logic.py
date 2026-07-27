@@ -29,6 +29,8 @@ feedback_map = {
 
 secret = []
 feedback = []
+max_attempt = 7
+game_size = 4
 
 def display(lst):
   print()
@@ -58,18 +60,18 @@ def displayInput(user_input):
 
     if len(user_input) != 4:
         print("Invalid size")
-        return
+        return -1
 
     lst = []
 
     for c in user_input:
         if c not in color_map:
             print(f"Invalid color code: {c}")
-            return
+            return -1
         lst.append(color_map[c])
 
     display(lst)
-    validateInput(user_input)
+    return validateInput(user_input)
 
 def validateInput(user_input):
   # compare aganist the secret and build feedback - white for color matches only, red for color and place matches
@@ -88,15 +90,37 @@ def validateInput(user_input):
           feedback.append(feedback_map["W"])
           secret_copy[secret_copy.index(color)] = None
 
+  if countR(feedback) == game_size:
+    return 1
   # Randomize the feedback
   random.shuffle(feedback)
   displayFeedback(feedback)
 
+# Count # of R in teh list
+def countR(lst):
+  count = 0
+  for i in lst:
+    if i == "🔴":
+      count += 1
+  return count
+
 generateSecret(color_map, 4, False)
 
-displayInput(input())
+def play():
+  counter = 0
+  revealed = 0
+  while revealed != 1:
+    counter+=1
+    if counter <= max_attempt:
+      revealed = displayInput(input())
+      if revealed == -1:
+        counter -= 1
+        continue
+      elif revealed == 1:
+        print("   \033[1;32mY O U   W O N !\033[0m")
+    else:
+      print("   \033[1;31mY O U   L O S T 😞\033[0m")
+      revealed = True
 
-displayInput(input())
-
-!git status
+play()
 
